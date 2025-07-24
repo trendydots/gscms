@@ -2,11 +2,11 @@
 
 **gscms** is a lightweight JavaScript library that binds data from a public Google Sheet directly into HTML using custom attributes. It supports:
 
-* Single cell binding (`gscms-bind`)
-* Range binding (`gscms-range`)
-* Attribute binding (`gscms-bind-*`)
-* Repeating structures (`gscms-for`)
-* Conditional class logic (`gscms-class-if`)
+* Single cell binding (`gs-bind`)
+* Range binding (`gs-range`)
+* Attribute binding (`gs-bind-*`)
+* Repeating structures (`gs-for`)
+* Conditional class logic (`gs-class-if`)
 
 ---
 
@@ -35,13 +35,13 @@
 Bind the content of a single cell:
 
 ```html
-<div gscms-bind="A2"></div>
+<div gs-bind="A2"></div>
 ```
 
 Bind a cell value to an attribute:
 
 ```html
-<img gscms-bind-src="B4" />
+<img gs-bind-src="B4" />
 ```
 ---
 
@@ -50,7 +50,7 @@ Bind a cell value to an attribute:
 Bind the content of a single cell:
 
 ```html
-<div gscms-hbind="A2"></div>
+<div gs-hbind="A2"></div>
 ```
 ---
 
@@ -59,19 +59,19 @@ Bind the content of a single cell:
 Inject an entire range of values (e.g., as inner HTML):
 
 ```html
-<p gscms-range="A3:B7"></p>
+<p gs-range="A3:B7"></p>
 ```
 
 ---
 
-## 🔁 Loops with `gscms-for`
+## 🔁 Loops with `gs-for`
 
-Use `gscms-for` to repeat a template over a range:
+Use `gs-for` to repeat a template over a range:
 
 ```html
-<ul gscms-for="2:6 as row">
+<ul gs-for="2:6 as row">
   <li>
-    <strong gscms-bind="A[row]"></strong> - <span gscms-bind="B[row]"></span>
+    <strong gs-bind="A[row]"></strong> - <span gs-bind="B[row]"></span>
   </li>
 </ul>
 ```
@@ -79,15 +79,15 @@ Use `gscms-for` to repeat a template over a range:
 You can also use expressions:
 
 ```html
-<ul gscms-for="1:10 as i">
-  <li gscms-bind="A[i]"></li>
+<ul gs-for="1:10 as i">
+  <li gs-bind="A[i]"></li>
 </ul>
 ```
 
 Nested dynamic values are supported:
 
 ```html
-<span gscms-bind="A[row+1]"></span>
+<span gs-bind="A[row+1]"></span>
 ```
 
 ---
@@ -99,13 +99,13 @@ Apply conditional classes based on spreadsheet values:
 ### Basic Condition:
 
 ```html
-<li gscms-class-if="A[row] == 'red': text-red font-bold"></li>
+<li gs-class-if="A[row] == 'red': text-red font-bold"></li>
 ```
 
 ### With Fallback (else):
 
 ```html
-<li gscms-class-if="A[3] == 'success': text-green font-bold | text-red font-semibold"></li>
+<li gs-class-if="A[3] == 'success': text-green font-bold | text-red font-semibold"></li>
 ```
 
 ---
@@ -138,10 +138,10 @@ Imagine this Google Sheet:
 Then:
 
 ```html
-<ul gscms-for="2:4 as row">
+<ul gs-for="2:4 as row">
   <li>
-    <span gscms-bind="A[row]"></span>:
-    <span gscms-bind="B[row]"></span> €
+    <span gs-bind="A[row]"></span>:
+    <span gs-bind="B[row]"></span> €
   </li>
 </ul>
 ```
