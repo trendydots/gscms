@@ -37,6 +37,14 @@ Bind the content of a single cell:
 ```html
 <div gs-bind="A2"></div>
 ```
+Also, using global variables
+
+```html
+<div gs-bind="A[globalRowValue]"></div>
+...
+
+<script> let globalRowValue = 2 </script>
+```
 
 Bind a cell value to an attribute:
 
@@ -99,7 +107,7 @@ Apply conditional classes based on spreadsheet values:
 ### Basic Condition:
 
 ```html
-<li gs-class-if="A[row] == 'red': text-red font-bold"></li>
+<li gs-class-if="A[1] == 'red': text-red font-bold"></li>
 ```
 
 ### With Fallback (else):
@@ -140,8 +148,7 @@ Then:
 ```html
 <ul gs-for="2:4 as row">
   <li>
-    <span gs-bind="A[row]"></span>:
-    <span gs-bind="B[row]"></span> €
+    <span gs-bind="A[row]"></span>:  <span gs-bind="B[row]"></span> €
   </li>
 </ul>
 ```

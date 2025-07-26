@@ -1,5 +1,5 @@
 /*!
- * gscms.js v1.0.0
+ * gscms.js v1.0.1
  * 
  * License:
  * This software is free for personal, non-commercial use.
@@ -9,6 +9,7 @@
  *
  * © 2025 trendy dots
  */
+
 
 const gscms = (function () {
     let sheetData = [];
@@ -23,10 +24,10 @@ const gscms = (function () {
         for (let i = 0; i < col.length; i++) {
             colNum = colNum * 26 + (col.charCodeAt(i) - 64);
         }
-        return [row - 1, colNum - 1];
+        return [row, colNum-1];
     }
 
-    function getCellValue(ref, context = {}) {
+    function getCellValue(ref, context = { ...gscms.data, ...window}) {
         if (ref.includes("[")) {
             ref = ref.replace(/\[([^\]]+)\]/g, (_, expr) => {
                 try {
@@ -44,10 +45,8 @@ const gscms = (function () {
 
     function processBindings(el, context = {}) {
         if (el.hasAttribute('gs-hbind')) {
-            console.log('yep')
             const htmlData = getCellValue(el.getAttribute('gs-hbind'), context);
             el.innerHTML = htmlData
-            console.dir(htmlData)
         }
 
         if (el.hasAttribute('gs-bind')) {
@@ -63,8 +62,9 @@ const gscms = (function () {
 
         if (el.hasAttribute('gs-range')) {
             const [start, end] = el.getAttribute('gs-range').split(':');
-            const [r1, c1] = A1toIndex(start);
-            const [r2, c2] = A1toIndex(end);
+            const [r1, c1] = A1toIndex(getCellValue(start, context)); //A1toIndex(start);
+            const [r2, c2] = A1toIndex(getCellValue(end, context)); //A1toIndex(end);
+            
             let html = '<table>';
             for (let r = r1; r <= r2; r++) {
                 html += '<tr>';
@@ -152,6 +152,12 @@ const gscms = (function () {
         }
     }
 
+    function renderAll(){
+         document.querySelectorAll('[gs-for], [gs-bind], [gs-hbind], [gs-bind-src], [gs-range], [gs-if]').forEach(el => {
+            processElement(el);
+        });
+    }
+
     async function init(sheetId) {
         const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
         const res = await fetch(url);
@@ -170,11 +176,14 @@ const gscms = (function () {
             }
             sheetData.push(row);
         });
+        renderAll();
 
-        document.querySelectorAll('[gs-for], [gs-bind], [gs-hbind], [gs-bind-src], [gs-range], [gs-if]').forEach(el => {
-            processElement(el);
-        });
+        // global click handler
+        window.addEventListener( 'click', function (e) {
+            renderAll();
+        }, false );
     }
 
-    return { init };
+    return { init, renderAll };
 })();
+
