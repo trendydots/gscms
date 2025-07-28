@@ -1,15 +1,15 @@
 /*!
- * gscms.js v1.0.1
+ * gscms.js v1.0.2
  * 
  * License:
  * This software is free for personal, non-commercial use.
- * *
  * For any commercial use (including within businesses or monetized products),
- * a commercial license is required. Contact research@trendydots.com for details.
+ * a commercial license is required.
+ * 
+ * Visit https://trendydots.com/ or contact research@trendydots.com for details.
  *
  * © 2025 trendy dots
  */
-
 
 const gscms = (function () {
     let sheetData = [];
@@ -17,6 +17,8 @@ const gscms = (function () {
     function A1toIndex(a1) {
         const colMatch = a1.match(/[A-Z]+/);
         const rowMatch = a1.match(/[0-9]+/);
+
+
         if (!colMatch || !rowMatch) return [null, null];
         const col = colMatch[0];
         const row = parseInt(rowMatch[0], 10);
@@ -24,10 +26,10 @@ const gscms = (function () {
         for (let i = 0; i < col.length; i++) {
             colNum = colNum * 26 + (col.charCodeAt(i) - 64);
         }
-        return [row, colNum-1];
+        return [row - 1, colNum - 1];
     }
 
-    function getCellValue(ref, context = { ...gscms.data, ...window}) {
+    function getCellValue(ref, context = { ...gscms.data, ...window }) {
         if (ref.includes("[")) {
             ref = ref.replace(/\[([^\]]+)\]/g, (_, expr) => {
                 try {
@@ -39,6 +41,7 @@ const gscms = (function () {
             });
         }
         const [r, c] = A1toIndex(ref);
+
         if (r === null || c === null || !sheetData[r]) return '';
         return sheetData[r][c] || '';
     }
@@ -64,7 +67,7 @@ const gscms = (function () {
             const [start, end] = el.getAttribute('gs-range').split(':');
             const [r1, c1] = A1toIndex(getCellValue(start, context)); //A1toIndex(start);
             const [r2, c2] = A1toIndex(getCellValue(end, context)); //A1toIndex(end);
-            
+
             let html = '<table>';
             for (let r = r1; r <= r2; r++) {
                 html += '<tr>';
@@ -119,7 +122,7 @@ const gscms = (function () {
 
             if (!result) {
                 element.style.display = 'none';
-            } 
+            }
         });
     }
 
@@ -152,38 +155,28 @@ const gscms = (function () {
         }
     }
 
-    function renderAll(){
-         document.querySelectorAll('[gs-for], [gs-bind], [gs-hbind], [gs-bind-src], [gs-range], [gs-if]').forEach(el => {
+    function renderAll() {
+        document.querySelectorAll('[gs-for], [gs-bind], [gs-hbind], [gs-bind-src], [gs-bind-value],[gs-bind-href], [gs-bind-id], [gs-range], [gs-if]').forEach(el => {
             processElement(el);
         });
     }
 
-    async function init(sheetId) {
-        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
-        const res = await fetch(url);
-        const text = await res.text();
-        const json = JSON.parse(text.substr(47).slice(0, -2));
-        const cols = json.table.cols.length;
 
-        // include header row
-        sheetData = [json.table.cols.map(col => col.label || '')];
-        json.table.rows.forEach(r => {
-            const row = new Array(cols).fill('');
-            if (r.c) {
-                r.c.forEach((cell, i) => {
-                    if (cell && 'v' in cell) row[i] = cell.v;
-                });
-            }
-            sheetData.push(row);
-        });
+    async function init(sheetId) {
+        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=tsv`;
+        const res = await fetch(url);
+        const tsv = await res.text();
+
+        // Split TSV into rows
+        const rows = tsv.trimEnd().split('\n');
+
+        // Convert each row into an array, preserving empty cells
+        sheetData = rows.map(row => row.split('\t'));
+
         renderAll();
 
-        // global click handler
-        window.addEventListener( 'click', function (e) {
-            renderAll();
-        }, false );
     }
+
 
     return { init, renderAll };
 })();
-
